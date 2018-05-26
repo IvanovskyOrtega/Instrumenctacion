@@ -151,33 +151,6 @@ function keyPressed() {
   }
 }
 
-
-// draw a regular n-gon with n sides
-function ngon(n, x, y, d) {
-  beginShape();
-  for(var i = 0; i < n; i++) {
-    var angle = TWO_PI / n * i;
-    var px = x + sin(angle) * d / 2;
-    var py = y - cos(angle) * d / 2;
-    vertex(px, py);
-  }
-  endShape(CLOSE);
-}
-
-
-// draw a regular n-pointed star
-function star(n, x, y, d1, d2) {
-  beginShape();
-  for(var i = 0; i < 2 * n; i++) {
-    var d = (i % 2 === 1) ? d1 : d2;
-    var angle = PI / n * i;
-    var px = x + sin(angle) * d / 2;
-    var py = y - cos(angle) * d / 2;
-    vertex(px, py);
-  }
-  endShape(CLOSE);
-}
-
 function serialEvent() {
   // read a byte from the serial port:
   var inByte = serial.read();
