@@ -1,5 +1,6 @@
 var Sensores = ['Temperatura', 'Distancia', 'Potenciometrico', 'Proximidad'];
-var Escalas = ['Celsius','Fahrenheit','Kelvin'];
+var EscalaT = ['Celsius','Fahrenheit','Kelvin'];
+var EscalaD = ['cm','ft','in'];
 
 var serial; // variable to hold an instance of the serialport library
 var portName = 'COM8'; // fill in your serial port name here
@@ -19,6 +20,12 @@ function setup() {
   // Create Layout GUI
   gui = createGui('Sensores');
   gui.addGlobals('Sensores','Escalas');
+
+  gui_temp = createGui('Escalas de Temperatura',20,120);
+  gui_temp.addGlobals('EscalaT');
+
+  gui_dist = createGui('Escalas de Distancia',20,120);
+  gui_dist.addGlobals('EscalaD');
 
   serial = new p5.SerialPort(); // make a new instance of the serialport library
   serial.on('data', serialEvent); // callback for when new data arrives
@@ -43,9 +50,11 @@ function draw() {
   // pick a shape
   switch (Sensores) {
     case 'Temperatura':
+        gui_temp.show();  gui_dist.hide();
   	    drawTermometer(x,y,d);
       break;
     case 'Distancia':
+        gui_dist.show(); gui_temp.hide();
       drawRuler(x,y2);
   }
 
@@ -211,19 +220,19 @@ function distanceValue(val){
   }
   distanceValue *= .2745;
   distanceValue += 10;
-  switch (Escalas) {
-    case 'Celsius':
+  switch (EscalaD) {
+    case 'cm':
       scaledValue = distanceValue;
       scaledValue = scaledValue.toFixed(2);
       scaledValue = scaledValue+" cm";
       break;
-    case 'Kelvin':
-      scaledValue = distanceValue+273.15;
+    case 'ft':
+      scaledValue = distanceValue/30.48;
       scaledValue = scaledValue.toFixed(2);
       scaledValue = scaledValue+" ft";
       break;
-    case 'Fahrenheit':
-      scaledValue = (distanceValue*1.8)+32;
+    case 'in':
+      scaledValue = distanceValue/2.54;
       scaledValue = scaledValue.toFixed(2);
       scaledValue = scaledValue+" in";
       break;
@@ -238,7 +247,7 @@ function termometerValue(val){
       termometerValue += Math.pow(2,i);
   }
   termometerValue *= 0.19607;
-  switch (Escalas) {
+  switch (EscalaT) {
     case 'Celsius':
       scaledValue = termometerValue;
       scaledValue = scaledValue.toFixed(2);
