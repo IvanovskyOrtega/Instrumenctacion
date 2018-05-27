@@ -1,5 +1,5 @@
 var Sensores = ['Temperatura', 'Distancia', 'Potenciometrico', 'Proximidad'];
-var Escalas = ['Celsius','Fahrenheit','Kelvin']
+var Escalas = ['Celsius','Fahrenheit','Kelvin'];
 
 var serial; // variable to hold an instance of the serialport library
 var portName = 'COM8'; // fill in your serial port name here
@@ -18,7 +18,6 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   // Create Layout GUI
   gui = createGui('Sensores');
-  sliderRange(0, 100, 1);
   gui.addGlobals('Sensores','Escalas');
 
   serial = new p5.SerialPort(); // make a new instance of the serialport library
@@ -37,16 +36,53 @@ function draw() {
   clear();
 
 	var x = width / 2;
-	var y = 3 * height / 4;
+	var y = 3 * height / 4;;
+	var y2 = height / 2;
 	var d = 100.0;
 
   // pick a shape
-	if(Sensores == 'Temperatura') {
-	    drawTermometer(x,y,d);
-
-	}
+  switch (Sensores) {
+    case 'Temperatura':
+  	    drawTermometer(x,y,d);
+      break;
+    case 'Distancia':
+      drawRuler(x,y2);
+  }
 
 }
+
+function drawRuler(x,y){
+  push();
+  stroke(0);
+  strokeWeight(5);
+  fill([224, 228, 18]);
+  rect(x/8,.75*y,value*10,200);
+  var k = 10;
+  var count = 1;
+  strokeWeight(1);
+  for(var j = 1; j < value; j++, count++){
+    strokeWeight(1);
+    if(count % 5 == 0){
+      strokeWeight(4);
+      line((x/8)+k,.75*y,(x/8)+k,.75*y+100);
+      k+=10;
+      textSize(20);
+      fill(255);
+      text(count, (x/8)-20+k, .75*y+120);
+    }
+    else if(j < value){
+      line((x/8)+k,.75*y,(x/8)+k,.75*y+50);
+      k+=10;
+    }
+  }
+  k = 10;
+  noStroke();
+  textSize(32);
+  fill([33, 129, 247]);
+  text("La distancia es: \n"+scaledValue, x, windowHeight/4);
+  pop();
+}
+
 
 function drawTermometer(x,y,d){
   if(value === undefined)
@@ -54,7 +90,7 @@ function drawTermometer(x,y,d){
   push();
   stroke([255, 26, 26]);
   fill([255, 26, 26]);
-  arc(x, y+45, d, d,-57*PI/180,-123*PI/180,CHORD);
+  arc(x, y+45, d+3, d+3,-60*PI/180,-123*PI/180,CHORD);
   noStroke();
   fill(0);
   textSize(32);
@@ -68,11 +104,11 @@ function drawTermometer(x,y,d){
   push();
   noFill();
   stroke(50);
-  strokeWeight(4);
+  strokeWeight(3);
   arc(x, y+45, d+10, d+10,-56*PI/180,-123*PI/180);
   line(x-30,y-(d-5)/2+45,x-30,y-505);
-  line(x+31,y-(d-5)/2+45,x+31,y-505);
-  line(x-30,y-505,x+31,y-505);
+  line(x+30,y-(d-5)/2+45,x+30,y-505);
+  line(x-30,y-505,x+30,y-505);
   pop();
   rectMode(CORNERS);
   stroke([255, 26, 26]);
@@ -154,9 +190,41 @@ function keyPressed() {
 function serialEvent() {
   // read a byte from the serial port:
   var inByte = serial.read();
-  if(Sensores == 'Temperatura')
-    value = termometerValue(inByte);
-  //console.log(inByte);
+  switch (Sensores) {
+    case 'Temperatura':
+      value = termometerValue(inByte);
+      break;
+    case 'Distancia':
+      value = distanceValue(inByte);
+  }
+}
+
+function distanceValue(val){
+  var distanceValue = 0;
+  for(var i = 7; i >=0 ; i--){
+    if((val >> i) & 1 )
+      distanceValue += Math.pow(2,i);
+  }
+  distanceValue *= .2745;
+  distanceValue += 10;
+  switch (Escalas) {
+    case 'Celsius':
+      scaledValue = distanceValue;
+      scaledValue = scaledValue.toFixed(2);
+      scaledValue = scaledValue+" cm";
+      break;
+    case 'Kelvin':
+      scaledValue = distanceValue+273.15;
+      scaledValue = scaledValue.toFixed(2);
+      scaledValue = scaledValue+" ft";
+      break;
+    case 'Fahrenheit':
+      scaledValue = (distanceValue*1.8)+32;
+      scaledValue = scaledValue.toFixed(2);
+      scaledValue = scaledValue+" in";
+      break;
+  }
+  return distanceValue.toFixed(2);
 }
 
 function termometerValue(val){
