@@ -57,8 +57,12 @@ function drawRuler(x,y){
   strokeWeight(5);
   fill([224, 228, 18]);
   rect(x/8,.75*y,value*10,200);
+  noStroke();
+  fill([233, 237, 33]);
+  rect(x/8+3,.75*y+50,value*10-5,100);
   var k = 10;
   var count = 1;
+  stroke(0);
   strokeWeight(1);
   for(var j = 1; j < value; j++, count++){
     strokeWeight(1);
@@ -233,7 +237,7 @@ function termometerValue(val){
     if((val >> i) & 1 )
       termometerValue += Math.pow(2,i);
   }
-  termometerValue *= 0.19;
+  termometerValue *= 0.19607;
   switch (Escalas) {
     case 'Celsius':
       scaledValue = termometerValue;
