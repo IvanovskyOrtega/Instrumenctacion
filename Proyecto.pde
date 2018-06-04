@@ -6,7 +6,7 @@ ControlP5 cp5;
 
 Serial myPort;
 int w, h;
-float value;
+float value=20;
 int inByte;
 float scaledValue;
 int currentTempScale;
@@ -31,13 +31,12 @@ void drawTermometer(int x, int y, int d){
   fill(255, 26, 26);
   arc(x, y+45, d, d,-63*PI/180,241*PI/180,CHORD);
   noStroke();
-  fill(0);
   textSize(25);
-  fill(255);
   textAlign(CENTER);
   fill(255);
   text(String.format("%.2f", value)+"°", x, y + 50);
   fill(33, 129, 247);
+  text("SENSOR DE TEMPERATURA", x, 50);
   text("La temperatura es: \n"+String.format("%.2f", scaledValue), x+200, h);
   noFill();
   stroke(50);
@@ -159,7 +158,7 @@ float termometerValue(int inByte){
 
 
 void setup() {
-  size(1600, 900);
+  size(1300, 768);
   w =width/2;
   h=height/2;
   printArray(Serial.list()); 
@@ -170,19 +169,19 @@ void setup() {
   cp5.addScrollableList("SENSORES")
      .setPosition(20, 20)
      .setSize(200, 500)
-     .setBarHeight(80)
-     .setItemHeight(80)
+     .setBarHeight(60)
+     .setItemHeight(60)
      .addItems(l)
      ;
   cp5.addScrollableList("ESCALAS")
-     .setPosition(20, 200)
+     .setPosition(20, 400)
      .setSize(200, 500)
-     .setBarHeight(80)
-     .setItemHeight(80)
+     .setBarHeight(60)
+     .setItemHeight(60)
      .addItems(e1)
      ;
    cp5.get(ScrollableList.class, "ESCALAS").setVisible(false);  
-     
+   frame.setLocationRelativeTo(null);
 }
 
 void draw() {
@@ -196,18 +195,65 @@ void draw() {
       cp5.get(ScrollableList.class, "ESCALAS").setVisible(false);
       drawRuler(w,h);
     break;
+    case 3:
+      cp5.get(ScrollableList.class, "ESCALAS").setVisible(false);
+      drawLightBulb(w,h);
+    break;
   }
 }
 
+void drawLightBulb(int x, int y){
+  stroke(150);
+  arc(x, y+110, 300, 80,-67*PI/180,247*PI/180);
+  line(x-150,y+110,x-150,y+150);
+  line(x+150,y+110,x+150,y+150);
+  arc(x, y+150, 300, 80,0,PI);
+  noStroke();
+  fill(value*5,value*5,0);
+  arc(x, y-100, 200, 200,124*PI/180,416*PI/180,CHORD);
+  stroke(value*5,value*5,0);
+  beginShape();
+  vertex(x-55,y-17);
+  vertex(x+55,y-17);
+  vertex(x+45,y+45);
+  vertex(x-45,y+45);
+  endShape(CLOSE);
+  stroke(150);
+  strokeWeight(4);
+  line(x+55,y+45,x+60,y+100);
+  line(x-55,y+45,x-60,y+100);
+  stroke(200);
+  line(x-15,y+45,x-20,y-25);
+  line(x+15,y+45,x+20,y-25);
+  line(x-20,y-25,x-50,y-80);
+  line(x+20,y-25,x+50,y-80);
+  noFill();
+  stroke(150);
+  line(x-55,y+45,x+55,y+45);
+  textSize(25);
+  textAlign(CENTER);
+  fill(255);
+  if(value > 10){
+    fill(33, 129, 247);
+    text("SENSOR DE PROXIMIDAD", x, 50);
+    text("Se ha detectado un objeto", x+400, h);
+  }else{
+    fill(33, 129, 247);
+    text("SENSOR DE PROXIMIDAD", x, 50);
+    text("No se ha detectado nungún objeto", x+400, h);
+  }
+  noFill();
+}
 
 void drawRuler(int x, int y){
   stroke(0);
   strokeWeight(5);
   fill(224, 228, 18);
-  rect(x/4,y,value*10,200);
+  rect(x/2,y,value*10,200);
   noStroke();
   fill(233, 237, 33);
-  rect(x/4+3,y+50,value*10-5,100);
+  rectMode(CORNER);
+  rect(x/2+3,y+50,value*10-5,100);
   int k = 10;
   int count = 1;
   stroke(0);
@@ -216,22 +262,22 @@ void drawRuler(int x, int y){
     strokeWeight(1);
     if(count % 5 == 0){
       strokeWeight(4);
-      line((x/4)+k,y,(x/8)+k,.75*y+100);
+      line((x/2)+k,y,(x/2)+k,y+100);
       k+=10;
       textSize(20);
       fill(255);
-      text(count, (x/4)-20+k, y+120);
+      text(count, (x/2)-20+k, y+120);
     }
     else if(j < value){
-      line((x/4)+k,y,(x/4)+k,y+50);
+      line((x/2)+k,y,(x/2)+k,y+50);
       k+=10;
     }
   }
-  k = 10;
   noStroke();
   textSize(32);
   fill(33, 129, 247);
-  text("La distancia es: \n"+scaledValue, x, w/2);
+  text("SENSOR DE DISTANCIA", x, 50);
+  text("La distancia es: \n"+scaledValue, x, y-100);
 }
 
 
